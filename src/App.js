@@ -1,25 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React, { useState, useEffect } from "react";
+import { fetchUsers } from "./services/api";
+import UserForm from "./components/UserForm";
+import UserTable from "./components/UserTable";
+import "./App.css";
 
-function App() {
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [form, setForm] = useState({
+    id: null,
+    name: "",
+    email: "",
+    department: "",
+  });
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const users = await fetchUsers();
+        setUsers(users);
+      } catch (err) {
+        setError("Failed to fetch users.");
+      }
+    };
+    loadUsers();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>User Management</h1>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <UserForm
+        form={form}
+        setForm={setForm}
+        setUsers={setUsers}
+        users={users}
+        setError={setError}
+      />
+
+      <UserTable
+        users={users}
+        setUsers={setUsers}
+        setError={setError}
+        setForm={setForm}
+      />
     </div>
   );
-}
+};
 
 export default App;
